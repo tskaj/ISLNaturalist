@@ -36,8 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _weatherForecast;
   Map<String, dynamic>? _sprayRecommendations;
   String _weatherUnits = 'metric';
-  
-  get _selectedDetectionType => null;
 
   @override
   void initState() {
@@ -93,389 +91,46 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
   
-  Future<void> _pickImage(dynamic DetectionType) async {
+  Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
-      // Only validate leaf images when leaf detection is selected
-      bool isValid = _selectedDetectionType == DetectionType.leaf 
-          ? await _validateLeafImage(image)
-          : true; // Skip validation for bird and insect detection
-          
-      if (isValid) {
+      final isValidLeafImage = await _validateLeafImage(image);
+      if (isValidLeafImage) {
         setState(() {
           _selectedImage = image;
           _detectionResult = null;
         });
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)?.pleaseSelectLeafImage ?? 'Please select a leaf image')),
-        );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)?.pleaseSelectLeafImage ?? 'Please select a leaf image')),
+          );
+        }
       }
     }
   }
 
-Future<void> _captureImage(dynamic DetectionType) async {
+Future<void> _captureImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
     if (image != null) {
-      // Only validate leaf images when leaf detection is selected
-      bool isValid = _selectedDetectionType == DetectionType.leaf 
-          ? await _validateLeafImage(image)
-          : true; // Skip validation for bird and insect detection
-          
-      if (isValid) {
+      final isValidLeafImage = await _validateLeafImage(image);
+      if (isValidLeafImage) {
         setState(() {
           _selectedImage = image;
           _detectionResult = null;
         });
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)?.pleaseSelectLeafImage ?? 'Please select a leaf image')),
-        );
-      }
-    }
-  }
-
-  Future<void> _detectSpecies(dynamic DetectionType) async {
-    final localizations = AppLocalizations.of(context);
-    if (_selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations?.pleaseSelectImage ?? 'Please select an image')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final token = authProvider.token;
-
-      Map<String, dynamic> result;
-      
-      // Choose the appropriate detection service based on selected type
-      switch (_selectedDetectionType) {
-        case DetectionType.leaf:
-          if (kIsWeb) {
-            final bytes = await _selectedImage!.readAsBytes();
-            result = token != null 
-                ? await DiseaseService.detectDiseaseWeb(bytes, token, cropType: _selectedCrop)
-                : await DiseaseService.detectDiseaseAnonymousWeb(bytes, cropType: _selectedCrop);
-          } else {
-            final file = File(_selectedImage!.path);
-            result = token != null
-                ? await DiseaseService.detectDisease(file, token, cropType: _selectedCrop)
-                : await DiseaseService.detectDiseaseAnonymousMobile(file, cropType: _selectedCrop);
-          }
-          break;
-          
-        case DetectionType.bird:
-          if (kIsWeb) {
-            final bytes = await _selectedImage!.readAsBytes();
-            result = token != null 
-                ? {'success': true, 'data': await BirdDetectionService.detectBirdSpeciesWeb(bytes, token)}
-                : {'success': true, 'data': await BirdDetectionService.detectInsectSpeciesAnonymousWeb(bytes)};
-          } else {
-            final file = File(_selectedImage!.path);
-            result = token != null
-                ? {'success': true, 'data': await BirdDetectionService.detectBirdSpecies(file, token)}
-                : {'success': true, 'data': await BirdDetectionService.detectBirdSpeciesAnonymous(file)};
-          }
-          break;
-          
-        case DetectionType.insect:
-          if (kIsWeb) {
-            final bytes = await _selectedImage!.readAsBytes();
-            result = token != null 
-                ? {'success': true, 'data': await InsectDetectionService.detectInsectSpeciesWeb(bytes, token)}
-                : {'success': true, 'data': await InsectDetectionService.detectInsectSpeciesAnonymousWeb(bytes)};
-          } else {
-            final file = File(_selectedImage!.path);
-            result = token != null
-                ? {'success': true, 'data': await InsectDetectionService.detectInsectSpecies(file, token)}
-                : {'success': true, 'data': await InsectDetectionService.detectInsectSpeciesAnonymous(file)};
-          }
-          break;
-      }
-
-      if (!mounted) return;
-
-      if (result['success']) {
-        setState(() {
-          _detectionResult = result['data'];
-        });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'])),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)?.pleaseSelectLeafImage ?? 'Please select a leaf image')),
+          );
+        }
       }
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${error.toString()}')),
-      );
     }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  void _viewDetailedInfo() {
-    if (_detectionResult == null) return;
-    
-    switch (_selectedDetectionType) {
-      case DetectionType.leaf:
-        // Navigate to disease detail screen
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (ctx) => DiseaseDetailScreen(
-              diseaseName: _detectionResult!['disease'] ?? 'Unknown',
-              cropType: _selectedCrop,
-              diseaseInfo: _detectionResult!['disease_info'],
-            ),
-          ),
-        );
-        break;
-        
-      case DetectionType.bird:
-      case DetectionType.insect:
-        // Navigate to species detail screen
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (ctx) => SpeciesDetailScreen(
-              speciesName: _detectionResult!['species'] ?? 'Unknown',
-              confidence: _detectionResult!['confidence'] ?? 0.0,
-              detectionType: _selectedDetectionType.toString().split('.').last,
-              detectionData: _detectionResult!,
-            ),
-          ),
-        );
-        break;
-    }
-  }
-
-  // Update the build method to include detection type selection
-  @override
-  Widget build(BuildContext context) {
-    // ... existing code ...
-    
-    return Scaffold(
-      // ... existing code ...
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ... existing code ...
-            
-            // Add detection type selector
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Select Detection Type:',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  SegmentedButton<DetectionType>(
-                    segments: [
-                      ButtonSegment(
-                        value: DetectionType.leaf,
-                        label: Text('Leaf Disease'),
-                        icon: Icon(Icons.eco),
-                      ),
-                      ButtonSegment(
-                        value: DetectionType.bird,
-                        label: Text('Bird Species'),
-                        icon: Icon(Icons.flutter_dash),
-                      ),
-                      ButtonSegment(
-                        value: DetectionType.insect,
-                        label: Text('Insect Species'),
-                        icon: Icon(Icons.bug_report),
-                      ),
-                    ],
-                    selected: {_selectedDetectionType},
-                    onSelectionChanged: (Set<DetectionType> selection) {
-                      setState(() {
-                        _selectedDetectionType = selection.first;
-                        _detectionResult = null; // Clear previous results
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            
-            // Show crop selector only for leaf disease detection
-            if (_selectedDetectionType == DetectionType.leaf)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: _buildCropSelector(),
-              ),
-            
-            // Image selection and preview
-            // ... existing code ...
-            
-            // Update button text based on detection type
-            ElevatedButton(
-              onPressed: _isLoading ? null : _detectSpecies,
-              child: _isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(_getDetectButtonText()),
-            ),
-            
-            // Detection results
-            if (_detectionResult != null) _buildDetectionResults(),
-            
-            // ... rest of the existing code ...
-          ],
-        ),
-      ),
-    );
-  }
-  
-  String _getDetectButtonText() {
-    switch (_selectedDetectionType) {
-      case DetectionType.leaf:
-        return 'Detect Disease';
-      case DetectionType.bird:
-        return 'Identify Bird';
-      case DetectionType.insect:
-        return 'Identify Insect';
-    }
-  }
-  
-  Widget _buildDetectionResults() {
-    // Different result displays based on detection type
-    switch (_selectedDetectionType) {
-      case DetectionType.leaf:
-        return _buildLeafDetectionResults();
-      case DetectionType.bird:
-        return _buildBirdDetectionResults();
-      case DetectionType.insect:
-        return _buildInsectDetectionResults();
-    }
-  }
-  
-  Widget _buildLeafDetectionResults() {
-    // Existing leaf disease detection results display
-    // ... existing code ...
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Disease: ${_detectionResult!['disease'] ?? 'Unknown'}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Confidence: ${(_detectionResult!['confidence'] * 100).toStringAsFixed(2)}%',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _viewDetailedInfo,
-            child: const Text('View Treatment Information'),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildBirdDetectionResults() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Bird Species: ${_detectionResult!['species'] ?? 'Unknown'}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Confidence: ${(_detectionResult!['confidence'] * 100).toStringAsFixed(2)}%',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _viewDetailedInfo,
-            child: const Text('View Species Information'),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildInsectDetectionResults() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.amber.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Insect Species: ${_detectionResult!['species'] ?? 'Unknown'}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Confidence: ${(_detectionResult!['confidence'] * 100).toStringAsFixed(2)}%',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _viewDetailedInfo,
-            child: const Text('View Species Information'),
-          ),
-        ],
-      ),
-    );
   }
   
  Future<bool> _validateLeafImage(XFile image) async {
