@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- Spraying Icon -->
+  <g id="spraying" transform="translate(0, 0)">
+    <path d="M15,40 L35,40 L35,45 L15,45 Z" fill="#607D8B" stroke="#455A64" stroke-width="1"/>
+    <path d="M20,25 L30,25 L30,40 L20,40 Z" fill="#90A4AE" stroke="#455A64" stroke-width="1"/>
+    <path d="M22,15 L28,15 L28,25 L22,25 Z" fill="#CFD8DC" stroke="#455A64" stroke-width="1"/>
+    <path d="M25,5 L25,15" stroke="#455A64" stroke-width="1" stroke-linecap="round"/>
+    <path d="M35,30 L40,25 L40,35 L35,30 Z" fill="#607D8B" stroke="#455A64" stroke-width="1"/>
+    <path d="M40,30 C45,30 45,25 50,25" stroke="#4FC3F7" stroke-width="1" stroke-linecap="round" stroke-dasharray="2,2"/>
+    <path d="M40,30 C45,30 45,30 50,30" stroke="#4FC3F7" stroke-width="1" stroke-linecap="round" stroke-dasharray="2,2"/>
+    <path d="M40,30 C45,30 45,35 50,35" stroke="#4FC3F7" stroke-width="1" stroke-linecap="round" stroke-dasharray="2,2"/>
+  </g>
+
+  <!-- Favorable Icon -->
+  <g id="favorable" transform="translate(60, 0)">
+    <circle cx="25" cy="25" r="20" fill="#C8E6C9" stroke="#4CAF50" stroke-width="2"/>
+    <path d="M15,25 L22,32 L35,18" stroke="#4CAF50" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Moderate Icon -->
+  <g id="moderate" transform="translate(120, 0)">
+    <circle cx="25" cy="25" r="20" fill="#FFE0B2" stroke="#FF9800" stroke-width="2"/>
+    <circle cx="25" cy="18" r="2" fill="#FF9800"/>
+    <path d="M25,25 L25,35" stroke="#FF9800" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Unfavorable Icon -->
+  <g id="unfavorable" transform="translate(0, 60)">
+    <circle cx="25" cy="25" r="20" fill="#FFCDD2" stroke="#F44336" stroke-width="2"/>
+    <path d="M18,18 L32,32" stroke="#F44336" stroke-width="3" stroke-linecap="round"/>
+    <path d="M32,18 L18,32" stroke="#F44336" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <!-- Clock Icon -->
+  <g id="clock" transform="translate(60, 60)">
+    <circle cx="25" cy="25" r="20" fill="#FFFFFF" stroke="#607D8B" stroke-width="2"/>
+    <circle cx="25" cy="25" r="2" fill="#607D8B"/>
+    <path d="M25,25 L25,15" stroke="#607D8B" stroke-width="2" stroke-linecap="round"/>
+    <path d="M25,25 L32,30" stroke="#607D8B" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Weather Icon -->
+  <g id="weather" transform="translate(120, 60)">
+    <circle cx="20" cy="20" r="10" fill="#FFD54F" stroke="#FFA000" stroke-width="1"/>
+    <path d="M20,5 L20,10" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M20,30 L20,35" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M5,20 L10,20" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M30,20 L35,20" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M10,10 L13,13" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M27,27 L30,30" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M10,30 L13,27" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M27,13 L30,10" stroke="#FFA000" stroke-width="1" stroke-linecap="round"/>
+    <path d="M25,35 Q35,35 40,30 Q45,25 40,20 Q35,15 30,20" fill="#BBDEFB" stroke="#2196F3" stroke-width="1"/>
+  </g>
+</svg>
