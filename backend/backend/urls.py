@@ -33,8 +33,11 @@ urlpatterns = [
     # User profile endpoint
     path('profile/', UserProfileView.as_view(), name='user-profile'),
 
-    #Insect detection
-    path('api/insect/', include('insect_detection.urls')),
+    # Insect detection
+    path('api/insects/', include('insect_detection.urls')),
+    
+    # Bird detection
+    path('api/birds/', include('bird_detection.urls')),
 ]
 
 # Serve media files in development

@@ -50,10 +50,12 @@ flutter:
   
   # Assets configuration
   assets:
+    - .env
     - assets/images/
+    - assets/data/insects/
+    - assets/data/birds/
     - assets/translations/
     - assets/fonts/  # Make sure this directory exists
     - assets/animations/ # Make sure this directory exists
-    - .env
 
   generate: true # Enable code generation

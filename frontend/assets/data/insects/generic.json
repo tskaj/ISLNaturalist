@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "question": "What is this insect's scientific name?",
+      "answer": "The scientific name information is not available in our local database."
+    },
+    {
+      "question": "Where is this insect typically found?",
+      "answer": "Habitat information is not available in our local database."
+    },
+    {
+      "question": "Is this insect harmful or beneficial?",
+      "answer": "Information about whether this insect is harmful or beneficial is not available in our local database."
+    },
+    {
+      "question": "What does this insect eat?",
+      "answer": "Diet information is not available in our local database."
+    },
+    {
+      "question": "What is the lifecycle of this insect?",
+      "answer": "Lifecycle information is not available in our local database."
+    },
+    {
+      "question": "How can I control this insect if it's a pest?",
+      "answer": "Pest control information is not available in our local database."
+    },
+    {
+      "question": "What role does this insect play in the ecosystem?",
+      "answer": "Ecological role information is not available in our local database."
+    }
+  ]
+}

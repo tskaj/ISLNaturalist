@@ -1,0 +1,32 @@
+{
+  "questions": [
+    {
+      "question": "What is this bird's scientific name?",
+      "answer": "Scientific name information is not available in our local database."
+    },
+    {
+      "question": "Where is this bird typically found?",
+      "answer": "Habitat information is not available in our local database."
+    },
+    {
+      "question": "What does this bird eat?",
+      "answer": "Diet information is not available in our local database."
+    },
+    {
+      "question": "Is this bird migratory?",
+      "answer": "Migration information is not available in our local database."
+    },
+    {
+      "question": "What sounds does this bird make?",
+      "answer": "Call information is not available in our local database."
+    },
+    {
+      "question": "How long do these birds typically live?",
+      "answer": "Lifespan information is not available in our local database."
+    },
+    {
+      "question": "How can I identify male vs female birds of this species?",
+      "answer": "Sexual dimorphism information is not available in our local database."
+    }
+  ]
+}

@@ -36,23 +36,17 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
     });
 
     try {
-      // Use the mock service for now to avoid API costs during development
-      final result = await DeepSeekService.getMockTreatmentRecommendation(
-        widget.diseaseName,
-        widget.cropType,
-      );
+      // Use the real API service instead of mock
+      final deepseekService = DeepseekService();
+      final prompt =
+          'Provide detailed treatment recommendations for ${widget.diseaseName} affecting ${widget.cropType} plants. Include disease information, treatment options (both organic and chemical if applicable), and prevention measures.';
 
-      if (result['success']) {
-        setState(() {
-          _treatmentRecommendation = result['recommendation'];
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _errorMessage = result['message'];
-          _isLoading = false;
-        });
-      }
+      final response = await deepseekService.getResponse(prompt);
+
+      setState(() {
+        _treatmentRecommendation = response;
+        _isLoading = false;
+      });
     } catch (e) {
       setState(() {
         _errorMessage = 'Error: $e';
@@ -64,7 +58,7 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.diseaseName),
@@ -77,8 +71,9 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Disease Information Section
-            if (widget.diseaseInfo != null) _buildDiseaseInfoSection(widget.diseaseInfo!),
-            
+            if (widget.diseaseInfo != null)
+              _buildDiseaseInfoSection(widget.diseaseInfo!),
+
             // AI Treatment Recommendation Section
             _buildTreatmentRecommendationSection(),
           ],
@@ -131,7 +126,8 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
                       ),
                     ],
                   ),
-                  child: Icon(Icons.eco, color: Colors.green.shade700, size: 24),
+                  child:
+                      Icon(Icons.eco, color: Colors.green.shade700, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -179,7 +175,7 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
             ),
           ),
           // Treatments section with cards
-          if ((diseaseInfo['treatments'] as List).isNotEmpty) ...[  
+          if ((diseaseInfo['treatments'] as List).isNotEmpty) ...[
             const SizedBox(height: 20),
             _buildSectionHeader('Treatments', Icons.healing),
             const SizedBox(height: 12),
@@ -235,7 +231,7 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
             ),
           ],
           // Prevention section with cards
-          if ((diseaseInfo['prevention'] as List).isNotEmpty) ...[  
+          if ((diseaseInfo['prevention'] as List).isNotEmpty) ...[
             const SizedBox(height: 20),
             _buildSectionHeader('Prevention', Icons.shield),
             const SizedBox(height: 12),
@@ -372,7 +368,8 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
                       ),
                     ],
                   ),
-                  child: Icon(Icons.smart_toy, color: Colors.blue.shade700, size: 24),
+                  child: Icon(Icons.smart_toy,
+                      color: Colors.blue.shade700, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -390,18 +387,21 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           if (_isLoading)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.green.shade500)),
+                    CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.green.shade500)),
                     const SizedBox(height: 16),
                     Text(
                       'Loading recommendations...',
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                      style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 16),
                     ),
                   ],
                 ),
@@ -422,7 +422,8 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
                   Expanded(
                     child: Text(
                       'Could not load recommendation: $_errorMessage',
-                      style: TextStyle(color: Colors.red.shade700, fontSize: 15),
+                      style:
+                          TextStyle(color: Colors.red.shade700, fontSize: 15),
                     ),
                   ),
                 ],
@@ -449,17 +450,19 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
       ),
     );
   }
-  
+
   // Helper method to parse and display the recommendation in a more structured way
   Widget _parseAndDisplayRecommendation(String recommendation) {
     // Parse the recommendation into sections
-    Map<String, dynamic> sections = _parseRecommendationSections(recommendation);
-    
+    Map<String, dynamic> sections =
+        _parseRecommendationSections(recommendation);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Disease Information Section
-        if (sections['description'] != null && sections['description'].isNotEmpty)
+        if (sections['description'] != null &&
+            sections['description'].isNotEmpty)
           _buildRecommendationSection(
             'About this Disease',
             sections['description'],
@@ -467,9 +470,9 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
             Colors.blue.shade50,
             Icons.info_outline,
           ),
-          
+
         const SizedBox(height: 16),
-        
+
         // Treatment Section
         if (sections['treatments'] != null && sections['treatments'].isNotEmpty)
           _buildRecommendationSection(
@@ -480,9 +483,9 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
             Icons.healing,
             isListItems: true,
           ),
-          
+
         const SizedBox(height: 16),
-        
+
         // Prevention Section
         if (sections['prevention'] != null && sections['prevention'].isNotEmpty)
           _buildRecommendationSection(
@@ -496,70 +499,81 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
       ],
     );
   }
-  
+
   // Parse recommendation text into structured sections
   Map<String, dynamic> _parseRecommendationSections(String recommendation) {
     final lines = recommendation.split('\n');
     String description = '';
     List<String> treatments = [];
     List<String> prevention = [];
-    
+
     String currentSection = 'none';
-    
+
     for (var line in lines) {
       final lineLower = line.toLowerCase().trim();
       if (line.trim().isEmpty) continue;
-      
+
       // Detect sections
       if (lineLower.contains('disease information:')) {
         currentSection = 'description';
         continue;
-      } else if (lineLower.contains('treatment recommendations:') || 
-                lineLower.contains('treatment:')) {
+      } else if (lineLower.contains('treatment recommendations:') ||
+          lineLower.contains('treatment:')) {
         currentSection = 'treatments';
         continue;
-      } else if (lineLower.contains('prevention measures:') || 
-                lineLower.contains('prevention:')) {
+      } else if (lineLower.contains('prevention measures:') ||
+          lineLower.contains('prevention:')) {
         currentSection = 'prevention';
         continue;
-      } else if (lineLower.contains('organic treatments:') || 
-                lineLower.contains('chemical options:')) {
+      } else if (lineLower.contains('organic treatments:') ||
+          lineLower.contains('chemical options:')) {
         // These are subsections of treatments
         continue;
       }
-      
+
       // Process line based on section
       if (currentSection == 'description') {
         description += line.trim() + ' ';
       } else if (currentSection == 'treatments') {
-        if (line.trim().startsWith('1.') || line.trim().startsWith('2.') || 
-            line.trim().startsWith('3.') || line.trim().startsWith('4.') ||
-            line.trim().startsWith('5.') || line.trim().startsWith('6.') ||
-            line.trim().startsWith('7.') || line.trim().startsWith('8.') ||
-            line.trim().startsWith('9.') || line.trim().startsWith('-')) {
+        if (line.trim().startsWith('1.') ||
+            line.trim().startsWith('2.') ||
+            line.trim().startsWith('3.') ||
+            line.trim().startsWith('4.') ||
+            line.trim().startsWith('5.') ||
+            line.trim().startsWith('6.') ||
+            line.trim().startsWith('7.') ||
+            line.trim().startsWith('8.') ||
+            line.trim().startsWith('9.') ||
+            line.trim().startsWith('-')) {
           treatments.add(line.trim());
         }
       } else if (currentSection == 'prevention') {
-        if (line.trim().startsWith('1.') || line.trim().startsWith('2.') || 
-            line.trim().startsWith('3.') || line.trim().startsWith('4.') ||
-            line.trim().startsWith('5.') || line.trim().startsWith('6.') ||
-            line.trim().startsWith('7.') || line.trim().startsWith('8.') ||
-            line.trim().startsWith('9.') || line.trim().startsWith('-')) {
+        if (line.trim().startsWith('1.') ||
+            line.trim().startsWith('2.') ||
+            line.trim().startsWith('3.') ||
+            line.trim().startsWith('4.') ||
+            line.trim().startsWith('5.') ||
+            line.trim().startsWith('6.') ||
+            line.trim().startsWith('7.') ||
+            line.trim().startsWith('8.') ||
+            line.trim().startsWith('9.') ||
+            line.trim().startsWith('-')) {
           prevention.add(line.trim());
         }
       }
     }
-    
+
     return {
       'description': description.trim(),
       'treatments': treatments,
       'prevention': prevention,
     };
   }
-  
+
   // Build a recommendation section with consistent styling
-  Widget _buildRecommendationSection(String title, dynamic content, Color primaryColor, 
-      Color backgroundColor, IconData icon, {bool isListItems = false}) {
+  Widget _buildRecommendationSection(String title, dynamic content,
+      Color primaryColor, Color backgroundColor, IconData icon,
+      {bool isListItems = false}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -608,7 +622,7 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Section content
           if (!isListItems)
             // For description text
@@ -654,7 +668,8 @@ class _DiseaseDetailScreenState extends State<DiseaseDetailScreen> {
                         Expanded(
                           child: Text(
                             // Remove any leading numbers or bullets
-                            content[i].replaceAll(RegExp(r'^[0-9]+\.\s*|-\s*'), ''),
+                            content[i]
+                                .replaceAll(RegExp(r'^[0-9]+\.\s*|-\s*'), ''),
                             style: TextStyle(
                               fontSize: 15,
                               height: 1.4,
